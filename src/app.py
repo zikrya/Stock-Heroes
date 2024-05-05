@@ -9,7 +9,7 @@ app.config['CACHE_TYPE'] = 'simple'
 cache = Cache(app)
 cache.init_app(app)
 
-symbols = ['AAPL', 'IBM']
+symbols = ['AAPL', 'IBM', 'TSLA']
 latest_data = {}
 
 @app.route('/api/data')
