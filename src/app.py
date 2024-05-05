@@ -5,7 +5,7 @@ from api.polygon_api import fetch_stock_data
 
 app = Flask(__name__)
 
-symbols = ['AAPL']
+symbols = ['AAPL', 'IBM']
 latest_data = {}
 
 @app.route('/api/data')

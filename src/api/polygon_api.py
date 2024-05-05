@@ -8,10 +8,14 @@ def fetch_stock_data(symbol, api_key):
         if response.status_code == 200:
             data = response.json()
             if 'results' in data and data['results']:
-                # Convert the timestamp from milliseconds to a readable date-time format
-                timestamp = data['results'][0]['t']
-                readable_date = datetime.utcfromtimestamp(timestamp / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
-                return {'price': data['results'][0]['c'], 'timestamp': readable_date}
+                result = data['results'][0]  # First item in results
+                return {
+                    'open': result['o'],
+                    'high': result['h'],
+                    'low': result['l'],
+                    'close': result['c'],
+                    'volume': result['v']
+                }
             else:
                 print(f"No data available for {symbol}")
                 return None
