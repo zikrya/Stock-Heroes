@@ -16,26 +16,30 @@
             .then(data => {
                 const container = document.getElementById('stocks-container');
                 container.innerHTML = '';
-                Object.keys(data).forEach(symbol => {
-                    const stock_data = data[symbol];
-                    const content = `<div>
-                        <h2>${symbol}</h2>
-                        <ul>
-                            <li>Open: ${stock_data.open}</li>
-                            <li>High: ${stock_data.high}</li>
-                            <li>Low: ${stock_data.low}</li>
-                            <li>Close: ${stock_data.close}</li>
-                            <li>Volume: ${stock_data.volume}</li>
-                        </ul>
-                    </div>`;
-                    container.innerHTML += content;
-                });
+                if (data) {
+                    Object.keys(data).forEach(symbol => {
+                        const stock_data = data[symbol];
+                        const content = `<div>
+                            <h2>${symbol}</h2>
+                            <ul>
+                                <li>Open: ${stock_data.open}</li>
+                                <li>High: ${stock_data.high}</li>
+                                <li>Low: ${stock_data.low}</li>
+                                <li>Close: ${stock_data.close}</li>
+                                <li>Volume: ${stock_data.volume}</li>
+                            </ul>
+                        </div>`;
+                        container.innerHTML += content;
+                    });
+                } else {
+                    console.log('No data received');
+                }
             })
             .catch(error => console.error('Error fetching data:', error));
         }
         setInterval(fetchData, 300000); // Fetch data every 5 minutes
         window.onload = fetchData; // Also fetch data when the page loads
-        </script>
+    </script>
 
 </body>
 </html>
