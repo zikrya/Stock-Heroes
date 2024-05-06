@@ -24,12 +24,11 @@ def fetch_historical_data(symbol, api_key, start_date, end_date):
         return pd.DataFrame()
 
 def normalize_data(df):
-    if 'o' in df.columns and 'h' in df.columns and 'l' in df.columns and 'c' in df.columns and 'v' in df.columns:
-        df = df[['o', 'h', 'l', 'c', 'v']]  # Select only the required columns
-        for column in df.columns:
-            max_value = df[column].max()
-            min_value = df[column].min()
-            df[column] = (df[column] - min_value) / (max_value - min_value)
+    df = df[['o', 'h', 'l', 'c', 'v']]  # Select only the required columns
+    for column in df.columns:
+        max_value = df[column].max()
+        min_value = df[column].min()
+        df.loc[:, column] = (df[column] - min_value) / (max_value - min_value)  # Using .loc to avoid SettingWithCopyWarning
     return df
 
 def create_sequences(data, n_steps=60):
