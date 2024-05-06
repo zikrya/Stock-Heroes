@@ -24,7 +24,7 @@ class StockPredictor(nn.Module):
 
 # Load and prepare data
 api_key = 'aPGsprF96a0EzYQeDq8Ypgjkr1MGRxsM'
-symbol = 'AAPL'
+symbol = 'IBM'
 start_date = '2021-01-01'
 end_date = '2023-01-01'
 raw_data = fetch_historical_data(symbol, api_key, start_date, end_date)
