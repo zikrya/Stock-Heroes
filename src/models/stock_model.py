@@ -5,6 +5,7 @@ import sys
 sys.path.append('/Users/zikryajaved/Desktop/Python Projects/stock-heroes/src')
 from api.ml_data_handler import fetch_historical_data, normalize_data, create_sequences
 from api.data_splitter import split_data
+from models.model_evaluation import evaluate_model  # Import the evaluation module
 
 class StockPredictor(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
@@ -61,3 +62,7 @@ with torch.no_grad():
     test_preds = model(X_test)
     test_loss = criterion(test_preds, y_test)
     print(f'Test Loss: {test_loss.item()}')
+    # Convert predictions and actuals to numpy for evaluation
+    test_preds_np = test_preds.cpu().numpy()
+    y_test_np = y_test.cpu().numpy()
+    evaluate_model(test_preds_np, y_test_np)  # Evaluate the model
