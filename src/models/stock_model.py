@@ -4,6 +4,7 @@ import torch.optim as optim
 import sys
 sys.path.append('/Users/zikryajaved/Desktop/Python Projects/stock-heroes/src')
 from api.ml_data_handler import fetch_historical_data, normalize_data, create_sequences
+from api.data_splitter import split_data
 
 class StockPredictor(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
@@ -16,8 +17,6 @@ class StockPredictor(nn.Module):
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
-        print(f"Initial hidden state shape: {h0.shape}")
-        print(f"Initial cell state shape: {c0.shape}")
         out, _ = self.lstm(x, (h0, c0))
         out = self.fc(out[:, -1, :])
         return out
@@ -31,12 +30,14 @@ raw_data = fetch_historical_data(symbol, api_key, start_date, end_date)
 normalized_data = normalize_data(raw_data)
 X, y = create_sequences(normalized_data)
 
-# Convert to PyTorch tensors
-X_train = torch.tensor(X, dtype=torch.float32)
-y_train = torch.tensor(y, dtype=torch.float32).view(-1, 1)
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = split_data(X, y, train_size=0.8)
 
-print(f"Shape of X_train: {X_train.shape}")  # Check input shape
-print(f"Shape of y_train: {y_train.shape}")  # Check output shape
+# Convert to PyTorch tensors
+X_train = torch.tensor(X_train, dtype=torch.float32)
+y_train = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
+X_test = torch.tensor(X_test, dtype=torch.float32)
+y_test = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
 
 # Instantiate the model
 model = StockPredictor(input_dim=5, hidden_dim=50, num_layers=2, output_dim=1)
@@ -53,3 +54,10 @@ for epoch in range(num_epochs):
     loss.backward()
     optimizer.step()
     print(f'Epoch {epoch+1}, Loss: {loss.item()}')
+
+# Optionally evaluate on the testing set after training
+model.eval()
+with torch.no_grad():
+    test_preds = model(X_test)
+    test_loss = criterion(test_preds, y_test)
+    print(f'Test Loss: {test_loss.item()}')
