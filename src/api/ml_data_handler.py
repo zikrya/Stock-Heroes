@@ -10,7 +10,9 @@ def fetch_historical_data(symbol, api_key, start_date, end_date):
             json_data = response.json()
             if 'results' in json_data and json_data['results']:
                 result = json_data['results']
-                return pd.DataFrame(result)
+                df = pd.DataFrame(result)
+                print(df.columns)  # Debug: Print columns to verify
+                return df
             else:
                 print(f"No data available for {symbol}")
                 return pd.DataFrame()
@@ -22,8 +24,9 @@ def fetch_historical_data(symbol, api_key, start_date, end_date):
         return pd.DataFrame()
 
 def normalize_data(df):
-    for column in df.columns:
-        if column != 't':  # Assuming 't' is timestamp and should not be normalized
+    if 'o' in df.columns and 'h' in df.columns and 'l' in df.columns and 'c' in df.columns and 'v' in df.columns:
+        df = df[['o', 'h', 'l', 'c', 'v']]  # Select only the required columns
+        for column in df.columns:
             max_value = df[column].max()
             min_value = df[column].min()
             df[column] = (df[column] - min_value) / (max_value - min_value)
@@ -43,3 +46,4 @@ end_date = '2023-01-01'
 data = fetch_historical_data(symbol, api_key, start_date, end_date)
 data = normalize_data(data)
 X, y = create_sequences(data)
+print(X, y)
