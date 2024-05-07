@@ -8,23 +8,19 @@ from api.data_splitter import split_data
 from models.model_evaluation import evaluate_model
 
 class Attention(nn.Module):
-    def __init__(self, feature_dim, step_dim, bias=True, **kwargs):
-        super(Attention, self).__init__(**kwargs)
+    def __init__(self, feature_dim, step_dim, bias=True):
+        super(Attention, self).__init__()
         self.feature_dim = feature_dim
         self.step_dim = step_dim
         self.bias = bias
         self.weights = nn.Parameter(torch.Tensor(feature_dim, 1))
         nn.init.kaiming_uniform_(self.weights)
-
         if bias:
             self.bias = nn.Parameter(torch.Tensor(1))
             nn.init.constant_(self.bias, 0.1)
 
     def forward(self, x):
-        eij = torch.mm(
-            x.contiguous().view(-1, self.feature_dim),
-            self.weights
-        ) + self.bias
+        eij = torch.mm(x.contiguous().view(-1, self.feature_dim), self.weights) + self.bias
         eij = eij.view(-1, self.step_dim)
         a = torch.softmax(eij, dim=1)
         weighted_input = x * torch.unsqueeze(a, -1)
@@ -42,8 +38,8 @@ class StockPredictor(nn.Module):
         self.fc2 = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_dim).to(x.device)  # *2 for bidirectional
-        c0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_dim).to(x.device)
+        h0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_dim).to(x.device)  # *2 for bidirectional
+        c0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_dim).to(x.device)
         out, _ = self.lstm(x, (h0, c0))
         out = self.attention(out)
         out = self.relu(self.fc1(out))
