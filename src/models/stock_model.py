@@ -27,18 +27,18 @@ class Attention(nn.Module):
         return torch.sum(weighted_input, 1)
 
 class StockPredictor(nn.Module):
-    def __init__(self, input_dim, hidden_dim, num_layers, output_dim, dropout=0.3):
+    def __init__(self, input_dim, hidden_dim, num_layers, output_dim, dropout=0.5):
         super(StockPredictor, self).__init__()
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
+        self.hidden_dim = hidden_dim  # Define hidden_dim
+        self.num_layers = num_layers  # Define num_layers
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout, bidirectional=True)
         self.attention = Attention(hidden_dim * 2, 60)  # Assuming sequence length is 60
-        self.fc1 = nn.Linear(hidden_dim * 2, hidden_dim)  # Adjust according to the output of bidirectional LSTM
+        self.fc1 = nn.Linear(hidden_dim * 2, hidden_dim * 2)  # Adjust according to the output of bidirectional LSTM
         self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_dim, output_dim)
+        self.fc2 = nn.Linear(hidden_dim * 2, output_dim)
 
     def forward(self, x):
-        h0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_dim).to(x.device)  # *2 for bidirectional
+        h0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_dim).to(x.device)  # Correctly reference hidden_dim and num_layers
         c0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_dim).to(x.device)
         out, _ = self.lstm(x, (h0, c0))
         out = self.attention(out)
