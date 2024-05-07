@@ -5,14 +5,14 @@ import sys
 sys.path.append('/Users/zikryajaved/Desktop/Python Projects/stock-heroes/src')
 from api.ml_data_handler import fetch_historical_data, normalize_data, create_sequences
 from api.data_splitter import split_data
-from models.model_evaluation import evaluate_model  # Import the evaluation module
+from models.model_evaluation import evaluate_model
 
 class StockPredictor(nn.Module):
-    def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
+    def __init__(self, input_dim, hidden_dim, num_layers, output_dim, dropout=0.2):
         super(StockPredictor, self).__init__()
         self.num_layers = num_layers
         self.hidden_dim = hidden_dim
-        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout)
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
@@ -22,9 +22,11 @@ class StockPredictor(nn.Module):
         out = self.fc(out[:, -1, :])
         return out
 
+
+
 # Load and prepare data
 api_key = 'aPGsprF96a0EzYQeDq8Ypgjkr1MGRxsM'
-symbol = 'IBM'
+symbol = 'AAPL'
 start_date = '2021-01-01'
 end_date = '2023-01-01'
 raw_data = fetch_historical_data(symbol, api_key, start_date, end_date)
