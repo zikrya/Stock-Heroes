@@ -56,12 +56,3 @@ def load_model(path='model_weights.pth'):
     model.load_state_dict(torch.load(path))
     model.eval()
     return model
-
-def predict_and_interpret(model, data):
-    X, _ = create_sequences(data)
-    X = torch.tensor(X, dtype=torch.float32)
-    with torch.no_grad():
-        predictions = model(X)
-    predicted_prices = predictions.numpy()
-    advice = 'Buy' if predicted_prices[-1] > predicted_prices[-2] else 'Sell'
-    return predicted_prices, advice
