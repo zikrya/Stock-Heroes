@@ -51,6 +51,22 @@ class StockPredictor(nn.Module):
         out = self.fc2(out)
         return out
 
+
+
+def load_model(path='model_weights.pth'):
+    model = StockPredictor(input_dim=5, hidden_dim=50, num_layers=2, output_dim=1)
+    model.load_state_dict(torch.load(path))
+    model.eval()
+    return model
+
+def predict_and_interpret(model, data):
+    X, _ = create_sequences(data)
+    X = torch.tensor(X, dtype=torch.float32)
+    with torch.no_grad():
+        predictions = model(X)
+    predicted_prices = predictions.numpy()
+    advice = 'Buy' if predicted_prices[-1] > predicted_prices[-2] else 'Sell'
+    return predicted_prices, advice
 # Load and prepare data
 api_key = 'aPGsprF96a0EzYQeDq8Ypgjkr1MGRxsM'
 symbol = 'IBM'
