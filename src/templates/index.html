@@ -32,58 +32,63 @@
 
 
     <script>
-        function getPrediction() {
-            const symbol = document.getElementById('stock-symbol').value;
-            fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({symbol: symbol})
-            })
-            .then(response => response.json())
-            .then(data => {
-                const result = document.getElementById('prediction-result');
-                if (data.error) {
-                    result.innerHTML = `<p>Error: ${data.error}</p>`;
-                } else {
-                    result.innerHTML = `<p>Recommendation: ${data.advice}</p>`;
-                    updateChart(data.predictions);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+function getPrediction() {
+    const symbol = document.getElementById('stock-symbol').value;
+    fetch('/predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({symbol: symbol})
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Received data:", data); // This will show you the data received from the server
+        const result = document.getElementById('prediction-result');
+        if (data.error) {
+            result.innerHTML = `<p>Error: ${data.error}</p>`;
+        } else {
+            result.innerHTML = `<p>Recommendation: ${data.advice}</p>`;
+            updateChart(data.predictions);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        console.log("Error with fetching or parsing data.");
+    });
+}
 
-        function updateChart(data) {
-            const ctx = document.getElementById('stockChart').getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map((_, index) => index + 1),
-                    datasets: [{
-                        label: 'Stock Price Prediction',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        data: data
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: false
-                        }
-                    },
-                    tooltips: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    hover: {
-                        mode: 'nearest',
-                        intersect: true
-                    }
+function updateChart(data) {
+    const ctx = document.getElementById('stockChart').getContext('2d');
+    const formattedData = data.map(item => item[0]); // Extract numbers from the nested arrays
+
+    if (window.myChart) {
+        window.myChart.destroy(); // Destroy the previous chart instance if exists
+    }
+
+    window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: formattedData.map((_, index) => index + 1), // Create labels for each data point
+            datasets: [{
+                label: 'Stock Price Prediction',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                data: formattedData, // Use the formatted data
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: false
                 }
-            });
+            },
+            responsive: true,
+            maintainAspectRatio: false
         }
+    });
+}
         </script>
 </body>
 </html>
