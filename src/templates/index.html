@@ -3,43 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Data Display</title>
+    <title>Stock Prediction Tool</title>
 </head>
 <body>
-    <h1>Real-Time Stock Data</h1>
-    <div id="stocks-container"></div>
+    <h1>Stock Prediction Tool</h1>
+    <form onsubmit="getPrediction(); return false;">
+        <input type="text" id="stock-symbol" placeholder="Enter Stock Symbol (e.g., AAPL)" required />
+        <button type="submit">Get Prediction</button>
+    </form>
+    <div id="prediction-result"></div>
 
     <script>
-        function fetchData() {
-            fetch('/api/data')
+        function getPrediction() {
+            const symbol = document.getElementById('stock-symbol').value;
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({symbol: symbol})
+            })
             .then(response => response.json())
             .then(data => {
-                const container = document.getElementById('stocks-container');
-                container.innerHTML = '';
-                if (data) {
-                    Object.keys(data).forEach(symbol => {
-                        const stock_data = data[symbol];
-                        const content = `<div>
-                            <h2>${symbol}</h2>
-                            <ul>
-                                <li>Open: ${stock_data.open}</li>
-                                <li>High: ${stock_data.high}</li>
-                                <li>Low: ${stock_data.low}</li>
-                                <li>Close: ${stock_data.close}</li>
-                                <li>Volume: ${stock_data.volume}</li>
-                            </ul>
-                        </div>`;
-                        container.innerHTML += content;
-                    });
+                const result = document.getElementById('prediction-result');
+                if (data.error) {
+                    result.innerHTML = `<p>Error: ${data.error}</p>`;
                 } else {
-                    console.log('No data received');
+                    result.innerHTML = `<p>Prediction: ${data.predictions}<br>Recommendation: ${data.advice}</p>`;
                 }
             })
-            .catch(error => console.error('Error fetching data:', error));
+            .catch(error => console.error('Error:', error));
         }
-        setInterval(fetchData, 300000); // Fetch data every 5 minutes
-        window.onload = fetchData; // Also fetch data when the page loads
     </script>
-
 </body>
 </html>
