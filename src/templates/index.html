@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <title>Stock Prediction Tool</title>
+    <style>
+        .recommendation {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .buy {
+            color: green;
+        }
+        .sell {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <h1>Stock Prediction Tool</h1>
@@ -11,7 +25,11 @@
         <input type="text" id="stock-symbol" placeholder="Enter Stock Symbol (e.g., AAPL)" required />
         <button type="submit">Get Prediction</button>
     </form>
+    <div style="width:50%;">
+        <canvas id="stockChart"></canvas>
+    </div>
     <div id="prediction-result"></div>
+
 
     <script>
         function getPrediction() {
@@ -29,11 +47,43 @@
                 if (data.error) {
                     result.innerHTML = `<p>Error: ${data.error}</p>`;
                 } else {
-                    result.innerHTML = `<p>Prediction: ${data.predictions}<br>Recommendation: ${data.advice}</p>`;
+                    result.innerHTML = `<p>Recommendation: ${data.advice}</p>`;
+                    updateChart(data.predictions);
                 }
             })
             .catch(error => console.error('Error:', error));
         }
-    </script>
+
+        function updateChart(data) {
+            const ctx = document.getElementById('stockChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map((_, index) => index + 1),
+                    datasets: [{
+                        label: 'Stock Price Prediction',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        data: data
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    }
+                }
+            });
+        }
+        </script>
 </body>
 </html>
