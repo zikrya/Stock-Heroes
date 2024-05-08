@@ -1,4 +1,4 @@
-# Stock Prediction Tool
+# Stock Heroes
 
 ## Overview
 This project is a Flask-based web application designed to predict stock prices and provide buy or sell recommendations. Utilizing a deep learning model trained on historical stock data from Polygon.io, the application aims to assist both novice and experienced traders in making informed trading decisions.
