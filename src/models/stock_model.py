@@ -33,9 +33,9 @@ class StockPredictor(nn.Module):
         self.num_layers = num_layers
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout, bidirectional=True)
         self.dropout = nn.Dropout(dropout)
-        self.attention = Attention(hidden_dim * 2, 60)  # Assuming sequence length is 60
+        self.attention = Attention(hidden_dim * 2, 60)
         self.fc1 = nn.Linear(hidden_dim * 2, hidden_dim * 2)
-        self.batch_norm = nn.BatchNorm1d(hidden_dim * 2)  # Adding batch normalization
+        self.batch_norm = nn.BatchNorm1d(hidden_dim * 2)
         self.relu = nn.ReLU()
         self.fc2 = nn.Linear(hidden_dim * 2, output_dim)
 
@@ -51,8 +51,6 @@ class StockPredictor(nn.Module):
         out = self.fc2(out)
         return out
 
-
-
 def load_model(path='model_weights.pth'):
     model = StockPredictor(input_dim=5, hidden_dim=50, num_layers=2, output_dim=1)
     model.load_state_dict(torch.load(path))
@@ -67,47 +65,3 @@ def predict_and_interpret(model, data):
     predicted_prices = predictions.numpy()
     advice = 'Buy' if predicted_prices[-1] > predicted_prices[-2] else 'Sell'
     return predicted_prices, advice
-# Load and prepare data
-api_key = 'aPGsprF96a0EzYQeDq8Ypgjkr1MGRxsM'
-symbol = 'IBM'
-start_date = '2021-01-01'
-end_date = '2023-01-01'
-raw_data = fetch_historical_data(symbol, api_key, start_date, end_date)
-normalized_data = normalize_data(raw_data)
-X, y = create_sequences(normalized_data)
-
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = split_data(X, y, train_size=0.8)
-
-# Convert to PyTorch tensors
-X_train = torch.tensor(X_train, dtype=torch.float32)
-y_train = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
-X_test = torch.tensor(X_test, dtype=torch.float32)
-y_test = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
-
-# Instantiate the model
-model = StockPredictor(input_dim=5, hidden_dim=50, num_layers=2, output_dim=1)
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01)
-
-# Training loop
-num_epochs = 50
-for epoch in range(num_epochs):
-    model.train()
-    optimizer.zero_grad()
-    output = model(X_train)
-    loss = criterion(output, y_train)
-    loss.backward()
-    optimizer.step()
-    print(f'Epoch {epoch+1}, Loss: {loss.item()}')
-
-# Optionally evaluate on the testing set after training
-model.eval()
-with torch.no_grad():
-    test_preds = model(X_test)
-    test_loss = criterion(test_preds, y_test)
-    print(f'Test Loss: {test_loss.item()}')
-    # Convert predictions and actuals to numpy for evaluation
-    test_preds_np = test_preds.cpu().numpy()
-    y_test_np = y_test.cpu().numpy()
-    evaluate_model(test_preds_np, y_test_np)  # Evaluate the model
