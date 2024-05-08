@@ -12,7 +12,8 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    symbol = request.form['symbol']
+    data = request.get_json()  # Change to handle JSON data
+    symbol = data['symbol']
     raw_data = fetch_historical_data(symbol, 'aPGsprF96a0EzYQeDq8Ypgjkr1MGRxsM', '2021-01-01', '2023-01-01')
     if raw_data.empty:
         return jsonify({'error': 'No data available for this symbol'})
@@ -29,3 +30,4 @@ def predict():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
