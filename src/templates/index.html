@@ -60,21 +60,21 @@ function getPrediction() {
 
 function updateChart(data) {
     const ctx = document.getElementById('stockChart').getContext('2d');
-    const formattedData = data.map(item => item[0]); // Extract numbers from the nested arrays
+    const formattedData = data.map(item => item[0]); // Extract numbers from the arrays
 
     if (window.myChart) {
-        window.myChart.destroy(); // Destroy the previous chart instance if exists
+        window.myChart.destroy();
     }
 
     window.myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: formattedData.map((_, index) => index + 1), // Create labels for each data point
+            labels: formattedData.map((_, index) => index + 1), 
             datasets: [{
                 label: 'Stock Price Prediction',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
-                data: formattedData, // Use the formatted data
+                data: formattedData,
                 fill: false
             }]
         },
